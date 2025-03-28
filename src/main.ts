@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import {ALLOWED_ORIGINS_ARRAY} from "./constants/origin";
+import { ALLOWED_ORIGINS_ARRAY } from './constants/origin';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,6 +21,9 @@ async function bootstrap() {
   app.enableCors({
     ...corsOptions,
   });
+
+  app.setGlobalPrefix('ticket-distribution-service');
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
