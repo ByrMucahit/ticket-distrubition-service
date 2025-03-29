@@ -9,7 +9,8 @@ export class ValidateTravelGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     try {
       const request = context.switchToHttp().getRequest();
-      const travelId = request.body.travel_id || request.param || request.query || request.headers['travel_id'];
+      const travelId =
+        request.params['travel_id'] || request.query || request.headers['travel_id'] || request.body.travel_id;
       const travel = await this.travelService.findTravelById(travelId, { status: 1 });
       if (travel && travel.status === TRAVEL_STATUSES.ACTIVE) return true;
       throw new BadRequestException(`Invalid Travel === Travel id: ${travelId}`);
