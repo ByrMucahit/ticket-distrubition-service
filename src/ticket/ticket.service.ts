@@ -5,16 +5,22 @@ import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { decorateProjectionObject, PROPERTIES } from '../decorator/projection.decorator';
 import { TICKET_STATUSES } from '../constants/ticket.constants';
 import { TicketEntity } from './ticket.entity';
+import { Gateway } from '../gateway/gateway';
 
 @Injectable()
 export class TicketService {
-  constructor(private ticketDataAccess: TicketDataAccess) {}
+  constructor(
+    private ticketDataAccess: TicketDataAccess,
+    private gateway: Gateway,
+  ) {}
 
   async createTicket(createTicketDto: CreateTicketDto): Promise<{ status: number; messages: string }> {
     try {
       const existingTicket = await this.ticketDataAccess.findTicketByTravelIdAndUserId(createTicketDto);
       if (existingTicket) return { status: 400, messages: 'ALREADY_EXISTING_TICKET' };
-      await this.ticketDataAccess.createTicket(createTicketDto);
+      const ticket = await this.ticketDataAccess.createTicket(createTicketDto);
+
+      this.gateway.sendBoughtTicketEvent(ticket);
       return { status: 200, messages: 'CREATING_TICKET_SUCCESS' };
     } catch (ex: any) {
       throw new Error(`Throwing an error during creating ticket === message: ${ex.message}`);
