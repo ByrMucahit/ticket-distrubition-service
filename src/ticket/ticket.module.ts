@@ -8,10 +8,11 @@ import { TicketController } from './ticket.controller';
 import { TravelsService } from '../travel/travels.service';
 import { TravelsDataAccess } from '../travel/travels.data-access';
 import { TravelsEntity } from '../travel/travels.entity';
+import { Gateway } from '../gateway/gateway';
 
 @Module({
   imports: [HttpModule, TypeOrmModule.forFeature([TicketEntity, TravelsEntity])],
-  providers: [TicketService, TicketDataAccess, TravelsService, TravelsDataAccess],
+  providers: [TicketService, TicketDataAccess, TravelsService, TravelsDataAccess, Gateway],
   exports: [TicketService],
   controllers: [TicketController],
 })
