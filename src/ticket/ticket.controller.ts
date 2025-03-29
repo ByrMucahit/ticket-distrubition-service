@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { TicketService } from './ticket.service';
-import { CreateTicketDto } from './dto/create-ticket.dto';
 import { ValidateTravelGuard } from '../guard/validate-travel.guard';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 import { UUIDParam } from '../decorator/http.decorator';
@@ -12,10 +11,11 @@ import { UserMeta } from '../decorator/user-meta.decorator';
 export class TicketController {
   constructor(private ticketService: TicketService) {}
 
-  @Post()
+  @Post('/buy/:travel_id')
   @UseGuards(ValidateTravelGuard)
-  async createTicket(@Body() createTicketDto: CreateTicketDto) {
-    return this.ticketService.createTicket(createTicketDto);
+  async createTicket(@UUIDParam('travel_id') travelId: Uuid, @UserMeta() userMeta: { user_id: Uuid }) {
+    const { user_id } = userMeta;
+    return this.ticketService.createTicket({ travel_id: travelId, user_id });
   }
 
   @Put('/:travel_id')
