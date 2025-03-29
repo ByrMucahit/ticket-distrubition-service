@@ -7,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
+import { TicketEntity } from '../ticket/ticket.entity';
 
 @WebSocketGateway(3002, {
   cors: {
@@ -30,17 +31,20 @@ export class Gateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit('user-left', { message: `User left the chat: ${client.id}` });
   }
 
-  @SubscribeMessage('sub')
+  @SubscribeMessage('reply')
   async handleMessage(client: Socket, message: any): Promise<void> {
     this.logger.log(`Message received from client id: ${client.id}`);
-    const json = JSON.parse(message);
-    this.logger.debug(`Payload: ${json}`);
+    this.logger.debug(`Payload: ${message}`);
 
-    client.emit('reply', 'this is a reply');
-    this.server.emit('reply', 'broadcasting...');
+    client.emit('sale', message);
+    this.server.emit('sale', message);
   }
 
   sendToAll(message: string) {
-    this.server.emit('sub', message);
+    this.server.emit('reply', message);
+  }
+
+  sendBoughtTicketEvent(message: TicketEntity) {
+    this.server.emit('sale', message);
   }
 }
