@@ -14,7 +14,7 @@ export class TicketDataAccess {
     ticketEntity.created_at = new Date();
     ticketEntity.updated_at = new Date();
     ticketEntity.status = TICKET_STATUSES.ACQUIRED;
-    await this.ticketRepository.save(ticketEntity);
+    return this.ticketRepository.save(ticketEntity);
   }
 
   async findTicketByTravelIdAndUserId(dto: { user_id: string; travel_id: string }) {
