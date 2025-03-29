@@ -4,6 +4,7 @@ import { TRAVEL_ENTITY_PROPERTIES } from '../constants/travel.constants';
 import { TravelsEntity } from './travels.entity';
 import { TicketService } from '../ticket/ticket.service';
 import { TICKET_STATUSES } from '../constants/ticket.constants';
+import { TicketEntity } from '../ticket/ticket.entity';
 
 @Injectable()
 export class TravelsService {
@@ -29,10 +30,27 @@ export class TravelsService {
     return currentProjection;
   }
 
-  async findTravels(projection: string | { [key: string]: 1 } = {}): Promise<TravelsEntity[]> {
+  async findTravels(userId: Uuid, projection: string | { [key: string]: 1 } = {}): Promise<TravelsEntity[]> {
     const decoratedProjection: { [key: string]: 1 } =
       typeof projection === 'string' ? this.decorateProjectionObject(projection) : projection;
-    return this.travelDataAccess.findTravels(decoratedProjection);
+    const tickets = await this.ticketsService.findTicketsByUserId(userId);
+    const ticketMap: Map<string, TicketEntity> = new Map<string, TicketEntity>();
+
+    for (const ticket of tickets) {
+      ticketMap.set(ticket.travel_id, ticket);
+    }
+
+    const travels: TravelsEntity[] = await this.travelDataAccess.findTravels(decoratedProjection);
+    const result: TravelsEntity[] = [];
+    for (const travel of travels) {
+      if (ticketMap.has(travel.id)) {
+        result.push({
+          ...travel,
+          status: TICKET_STATUSES.ACQUIRED,
+        });
+      } else result.push(travel);
+    }
+    return result;
   }
 
   async startTravel(travelId: Uuid) {
