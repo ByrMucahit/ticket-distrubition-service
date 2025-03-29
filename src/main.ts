@@ -1,17 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ALLOWED_ORIGINS_ARRAY } from './constants/origin';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const corsOptions = {
-    origin: (origin, callback) => {
-      if (ALLOWED_ORIGINS_ARRAY.includes(origin) || !origin) {
-        callback(null, true);
-      } else {
-        callback(new Error('Origin not allowed by CORS'));
-      }
-    },
+    origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,
@@ -26,4 +19,4 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+void bootstrap();
